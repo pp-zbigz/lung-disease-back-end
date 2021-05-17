@@ -1,20 +1,16 @@
-import os
 from flask import Flask, jsonify, request, redirect, url_for, send_from_directory, render_template
-import tensorflow as tf
-from tensorflow.keras.preprocessing.image import load_img, img_to_array
+from tensorflow.keras.preprocessing.image import img_to_array
 from tensorflow.keras.models import  load_model
-from werkzeug.utils import secure_filename
 import numpy as np
 from flask_cors import CORS, cross_origin
+from PIL import Image
 
 ALLOWED_EXTENSIONS = set(['jpg', 'jpeg', 'png'])
 IMAGE_SIZE = (224,224)  ## Based on the file size
-UPLOAD_FOLDER = 'uploads'
 
 def get_model():
     global model
-    # model = tf.keras.models.load_model('model/covid_pneumoniae_pneumothorax_tuberculosis_normal_model')
-    model = tf.keras.models.load_model('model.h5')
+    model = load_model('model.h5')
 get_model()
 
 def allowed_file(filename):
@@ -22,8 +18,9 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 def predict(file):
-    img  = load_img(file, target_size=IMAGE_SIZE)
-    img = img_to_array(img)/255.0
+    img = Image.open(file)
+    resized_image = img.resize(IMAGE_SIZE)
+    img = img_to_array(resized_image)/255.0
     img = np.expand_dims(img, axis=0)
     probs = model.predict(img)[0]
     output = {
@@ -37,7 +34,6 @@ def predict(file):
 
 app = Flask(__name__)  ## To upload files to folder
 CORS(app)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 @app.route('/', methods=['POST','OPTIONS'])
 @cross_origin(origin='*',headers=['access-control-allow-origin','Content-Type'])
@@ -46,10 +42,7 @@ def upload_file():
         file = request.files['file']
         
         if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            file.save(file_path)
-            output = predict(file_path)
+            output = predict(file)
 
     return jsonify({
         'Covid' : float(output['Covid']),
