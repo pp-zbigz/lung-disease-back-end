@@ -1,6 +1,6 @@
 import os
+from re import template
 from flask import Flask, jsonify, request, redirect, url_for, send_from_directory, render_template
-import tensorflow as tf
 from tensorflow.keras.preprocessing.image import load_img, img_to_array
 from tensorflow.keras.models import  load_model
 from werkzeug.utils import secure_filename
@@ -13,8 +13,7 @@ IMAGE_SIZE = (224,224)  ## Based on the file size
 
 def get_model():
     global model
-    # model = tf.keras.models.load_model('model/covid_pneumoniae_pneumothorax_tuberculosis_normal_model')
-    model = tf.keras.models.load_model('model.h5')
+    model = load_model('model.h5')
 get_model()
 
 def allowed_file(filename):
@@ -36,12 +35,12 @@ def predict(file):
     }
     return output
 
-app = Flask(__name__)  ## To upload files to folder
+app = Flask(__name__, template_folder = 'templates')  ## To upload files to folder
 CORS(app)
-@app.route('/',methods=['GET'])
+@app.route('/')
 def home():
-    return print("Hello World")
-    
+    return render_template("home.html")
+
 @app.route('/predict', methods=['POST','OPTIONS'])
 @cross_origin(origin='*',headers=['access-control-allow-origin','Content-Type'])
 def upload_file(): 
@@ -60,4 +59,4 @@ def upload_file():
     })
 
 if __name__ == "__main__":
-   app.run(port = 5000)
+   app.run()
