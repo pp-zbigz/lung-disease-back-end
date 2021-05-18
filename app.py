@@ -3,7 +3,6 @@ from re import template
 from flask import Flask, jsonify, request, redirect, url_for, send_from_directory, render_template
 from tensorflow.keras.preprocessing.image import load_img, img_to_array
 from tensorflow.keras.models import  load_model
-from werkzeug.utils import secure_filename
 import numpy as np
 from flask_cors import CORS, cross_origin
 from PIL import Image
@@ -37,13 +36,12 @@ def predict(file):
 
 app = Flask(__name__, template_folder = 'templates')  ## To upload files to folder
 CORS(app)
-@app.route('/')
-def home():
-    return render_template("index.html")
 
-@app.route('/predict', methods=['POST','OPTIONS'])
+@app.route('/predict', methods=['GET','POST','OPTIONS'])
 @cross_origin(origin='*',headers=['access-control-allow-origin','Content-Type'])
 def upload_file(): 
+    if request.method == 'GET':
+        return 'Connected Backend API'
     if request.method == 'POST':
         file = request.files['file']
         

@@ -1,3 +1,4 @@
 /.github/*
 /.vscode/*
 /trainmodel/*
+/__pycache__/*
