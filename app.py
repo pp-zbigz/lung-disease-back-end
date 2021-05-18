@@ -1,6 +1,7 @@
 import os
 from re import template
 from flask import Flask, jsonify, request, redirect, url_for, send_from_directory, render_template
+import tensorflow
 from tensorflow.keras.preprocessing.image import load_img, img_to_array
 from tensorflow.keras.models import  load_model
 import numpy as np
@@ -12,7 +13,7 @@ IMAGE_SIZE = (224,224)  ## Based on the file size
 
 def get_model():
     global model
-    model = load_model('model.h5')
+    model = tensorflow.keras.modelsload_model('model.h5')
 get_model()
 
 def allowed_file(filename):
