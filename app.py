@@ -39,7 +39,7 @@ app = Flask(__name__, template_folder = 'templates')  ## To upload files to fold
 CORS(app)
 @app.route('/')
 def home():
-    return render_template("home.html")
+    return render_template("index.html")
 
 @app.route('/predict', methods=['POST','OPTIONS'])
 @cross_origin(origin='*',headers=['access-control-allow-origin','Content-Type'])
@@ -59,4 +59,4 @@ def upload_file():
     })
 
 if __name__ == "__main__":
-   app.run()
+   app.run(host="0.0.0.0", port="80")
